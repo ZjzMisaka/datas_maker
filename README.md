@@ -14,22 +14,23 @@
 1. 方法参数为一个布尔值, 代表上一批次的数据是否合法成功上传. 
 2. 每次调用制造一条数据, 以字符串形式作为返回值传递. 例如: "int1, 'String2', '2012-03-15 10:13:56'"
 3. 当布尔值参数值为false, 代表上一批次中有数据不合法, 需要重新上传, 用户需要作出应对. 
-    例如: 每批次上传一万条数据, 其中有条数据为数字型, 按条递增. 这时候需要把这个变量减去一万, 以便保证表中这个字段的数值能连贯顺延不中断. 
+	例如: 每批次上传一万条数据, 其中有条数据为数字型, 按条递增. 这时候需要把这个变量减去一万, 以便保证表中这个字段的数值能连贯顺延不中断. 
 4. 该方法和它的所属类的访问修饰符必须为public.
 5. 构造方法: 目前只有两种
-    (1). public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password)
-        参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码
-    (2). public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password, String tableName)
-        参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
+	(1). public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password)
+		参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码
+	(2). public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password, String tableName)
+		参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
 6. 调用完构造方法和其他初始化方法后, 应当调用
-    (1). public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName)
-        参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.
+	(1). public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName)
+		参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.
 7. 最后, 需要写出制造数据的方法. 
-    例如: public String makeData(boolean hasSuccessedLastInvoke){
-                if(!hasSuccessedLastInvoke){
-                      // TODO
-                }
-                int dataInt = 1024;
-                String dataStr = "'Hello World!'";
-                return "int + ", " + dataStr"
-          }
+	例如: 
+	public String makeData(boolean hasSuccessedLastInvoke){
+		if(!hasSuccessedLastInvoke){
+			// TODO
+		}
+		int dataInt = 1024;
+		String dataStr = "'Hello World!'";
+		return "int + ", " + dataStr"
+	}
