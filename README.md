@@ -44,6 +44,6 @@ public String makeData(boolean hasSuccessedLastInvoke){
 	}
 	int dataInt = 1024;
 	String dataStr = "'Hello World!'";
-	return "int + ", " + dataStr";
+	return int + ", " + dataStr;
 }
 ```
