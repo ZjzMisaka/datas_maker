@@ -15,7 +15,7 @@
 ### 使用: 
 ----
 用户需要指定制造数据的方法与其所属的类, 工具会通过反射调用此方法, 方法的参数代表上一个批次的数据是否合法成功上传. <br/>
-## 构造方法: 
+#### 构造方法: 
 目前只有两种 <br/>
 ```Java
 public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password)
@@ -25,7 +25,7 @@ public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String
 public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password, String tableName)
 ```
 >>参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名 <br/>
-## 制造数据的方法: 
+#### 制造数据的方法: 
 * 方法名任意. <br/>
 * 方法参数为一个布尔值, 代表上一批次的数据是否合法成功上传. <br/>
 * 每次调用制造一条数据, 以字符串形式作为返回值传递. 例如: "int1, 'String2', '2012-03-15 10:13:56'" <br/>
@@ -38,7 +38,7 @@ public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String f
 ```
 >>参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.<br/>
 <br/>
-# 制造数据方法简单示例: 
+##### 制造数据方法简单示例: 
 ```Java
 public String makeData(boolean hasSuccessedLastInvoke){
 	if(!hasSuccessedLastInvoke){
