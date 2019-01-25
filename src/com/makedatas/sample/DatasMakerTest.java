@@ -31,10 +31,10 @@ public class DatasMakerTest {
 			aint -= 40;
 		}
 		Random random = new Random();
-		int r = random.nextInt(80);
+		int r = random.nextInt(20000);
 		++aint;
 		if (r == 0){
-			// 1/80的概率出现不合法的数据.
+			// 1/20000的概率出现不合法的数据.
 			return "";
 		} else {
 			// 返回一个合法的数据.
