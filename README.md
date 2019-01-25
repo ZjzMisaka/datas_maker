@@ -37,7 +37,6 @@ public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String
 public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName)
 ```
 >>参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.<br/>
-<br/>
 ##### 制造数据方法简单示例: 
 ```Java
 public String makeData(boolean hasSuccessedLastInvoke){
