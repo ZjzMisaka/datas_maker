@@ -110,7 +110,7 @@ public class DataMaker {
 		while (dataCountNow <= allDataTotalCount){
 			//当下批次上传数据后数据量会超过需要的总数, 将这批次的数量改为剩下的数目. 
 			if(allDataTotalCount - dataCountNow < oneTurnDataTotalCount) {
-				oneTurnDataTotalCount = allDataTotalCount - dataCountNow;
+				oneTurnDataTotalCount = allDataTotalCount - dataCountNow + 1;
 			}
 			
 			dataCountThisTurnNow = 1;
