@@ -1,4 +1,4 @@
-package com.makedatas.datamaker;
+package com.makedatas.datasmaker;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -14,7 +14,7 @@ import java.sql.Statement;
 
 // 可以增加带数据长度参数的makeDatas方法, 得到一条数据的长度后自动计算oneTurnDataCount的值.
 
-public class DataMaker {
+public class DatasMaker {
 	// 上次添加数据是否成功
 	boolean hasSuccessedLastInvoke = true;
 	// 目前可以选择的数据库
@@ -43,11 +43,11 @@ public class DataMaker {
 		this.tableName = tableName;
 	}
 
-	public DataMaker(){
+	public DatasMaker(){
 	}
 
 	// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码
-	public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password){
+	public DatasMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
 			this.dbUrl =  "jdbc:mysql://" + ip + ":" + port + "/" + dataBaseName;
@@ -61,7 +61,7 @@ public class DataMaker {
 	}
 
 	// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
-	public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password, String tableName){
+	public DatasMaker(DBType dbType, String ip, int port, String dataBaseName, String userName, String password, String tableName){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
 			this.dbUrl =  "jdbc:mysql://" + ip + ":" + port + "/" + dataBaseName;
@@ -110,7 +110,7 @@ public class DataMaker {
 		while (dataCountNow <= allDataTotalCount){
 			//当下批次上传数据后数据量会超过需要的总数, 将这批次的数量改为剩下的数目. 
 			if(allDataTotalCount - dataCountNow < oneTurnDataTotalCount) {
-				oneTurnDataTotalCount = allDataTotalCount - dataCountNow;
+				oneTurnDataTotalCount = allDataTotalCount - dataCountNow + 1;
 			}
 			
 			dataCountThisTurnNow = 1;

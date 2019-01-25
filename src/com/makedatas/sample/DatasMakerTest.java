@@ -2,8 +2,8 @@ package com.makedatas.sample;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
-import com.makedatas.datamaker.DataMaker;
-import com.makedatas.datamaker.DataMaker.DBType;
+import com.makedatas.datasmaker.DatasMaker;
+import com.makedatas.datasmaker.DatasMaker.DBType;
 
 /**
  * 
@@ -11,16 +11,16 @@ import com.makedatas.datamaker.DataMaker.DBType;
  *
  */
 
-public class DataMakerTest {
+public class DatasMakerTest {
 
 	static int aint = 0;
 
 	public static void main(String[] args) {
 		// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
-		DataMaker dataMaker = new DataMaker(DBType.MySQL, "192.111.11.11", 3306, "database_name", "root", "root", "table_name");
+		DatasMaker dataMaker = new DatasMaker(DBType.MySQL, "192.111.11.11", 3306, "database_name", "root", "root", "table_name");
 		// 参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.
-		// 总共往test表添加46000行数据, 每次添加40条数据.
-		dataMaker.makeDatas(16000, 40, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
+		// 总共往test表添加87654321行数据, 每次添加12345条数据.
+		dataMaker.makeDatas(87654321, 12345, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
 	}
 
 	// 此方法用于产生数据, 一次调用生成一条.
