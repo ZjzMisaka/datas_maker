@@ -24,9 +24,17 @@ public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String
 ##### 构造方法简单示例: 
 ```Java
 DataMaker dataMaker = new DataMaker(DBType.MySQL, "192.111.11.11", 3306, "database_name", "root", "root", "table_name");
-dataMaker.makeDatas(16000, 40, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
 ```
-#### 制造数据的方法: 
+#### 批量上传方法: 
+```Java
+public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName)
+```
+*参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.*
+##### 批量上传方法简单示例:
+```Java
+dataMaker.makeDatas(7654321, 12345, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
+```
+#### 制造数据方法: 
 * 方法名任意. <br/>
 * 方法参数为一个布尔值, 代表上一批次的数据是否合法成功上传. <br/>
 * 每次调用制造一条数据, 以字符串形式作为返回值传递. 例如: "1024, 'String', '2012-03-15 10:13:56'" <br/>
