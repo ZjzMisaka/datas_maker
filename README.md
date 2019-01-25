@@ -26,7 +26,7 @@ public DataMaker(DBType dbType, String ip, int port, String dataBaseName, String
 * 方法参数为一个布尔值, 代表上一批次的数据是否合法成功上传. <br/>
 * 每次调用制造一条数据, 以字符串形式作为返回值传递. 例如: "1024, 'String', '2012-03-15 10:13:56'" <br/>
 * 当布尔值参数值为false, 代表上一批次中有数据不合法, 需要重新上传, 用户需要作出应对. <br/>
->例如: 每批次上传一万条数据, 其中有条数据为数字型, 按条递增. 这时候需要把这个变量减去一万, 以便保证表中这个字段的数值能连贯顺延不中断. <br/>
+>例如: 每批次上传一万条数据至某表, 该表中有列字段为数字型, 按条递增. 这时候需要把这个变量减去一万, 以便保证表中这个字段的数值能连贯顺延不中断. <br/>
 * 该方法和它的所属类的访问修饰符必须为public. <br/>
 * 调用完构造方法和其他初始化方法后, 应当调用: <br/>
 ```Java
@@ -35,11 +35,13 @@ public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String f
 >>参数依次为: 需要的数据总数, 一轮批次添加的数据总数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.<br/>
 ##### 制造数据方法简单示例: 
 ```Java
+/*static int dataInt = 0;*/
+/*DO SOMETHING*/
 public String makeData(boolean hasSuccessedLastInvoke){
 	if(!hasSuccessedLastInvoke){
-		// TODO
+		dataInt -= /*oneTurnDataTotalCount*/;
 	}
-	int dataInt = 1024;
+	++dataInt;
 	String dataStr = "'Hello World!'";
 	return dataInt + ", " + dataStr;
 }
