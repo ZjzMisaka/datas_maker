@@ -9,6 +9,8 @@
 * 当用户的代码报未知错误后自动停止程序. <br/>
 ### 待增加的特性: 
 * 自动判断每批次的上传总数, 将效率最大化. <br/>
+* 为了安全性在表名列名上添加反引号. <br/>
+* 通过ssh连接数据库. <br/>
 ### 使用: 
 用户需要指定制造数据的方法与其所属的类, 工具会通过反射调用此方法, 方法的参数代表上一个批次的数据是否合法成功上传. <br/>
 #### 构造方法: 
@@ -60,4 +62,4 @@ public String makeData(boolean hasSuccessedLastInvoke){
 }
 ```
 
-***完整的示例程序请看项目中DataMakerTest.java***
+完整的示例程序请看项目中[DataMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/makedatas/sample/DatasMakerTest.java)
