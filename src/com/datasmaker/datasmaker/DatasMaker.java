@@ -55,6 +55,7 @@ public class DatasMaker {
 	public DatasMaker(){
 	}
 
+	//直接连接数据库
 	// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码
 	public DatasMaker(DBType dbType, String ip, int port, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
@@ -69,6 +70,7 @@ public class DatasMaker {
 		this.dbPassword = dbPassword;
 	}
 
+	//直接连接数据库
 	// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
 	public DatasMaker(DBType dbType, String ip, int port, String dataBaseName, String dbUserName, String dbPassword, String tableName){
 		if (dbType == DBType.MySQL){
@@ -83,6 +85,8 @@ public class DatasMaker {
 		this.setTableName(tableName);
 	}
 
+	// 通过ssh连接数据库
+	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码 
 	public DatasMaker(DBType dbType, String ip, int sshPort, int localPort, int dbPort, String sshUserName, String sshPassword, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -110,6 +114,8 @@ public class DatasMaker {
 		}
 	}
 
+	// 通过ssh连接数据库
+	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码, 表名 
 	public DatasMaker(DBType dbType, String ip, int sshPort, int localPort, int dbPort, String sshUserName, String sshPassword, String dataBaseName, String dbUserName, String dbPassword, String tableName){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -170,9 +176,9 @@ public class DatasMaker {
 			e1.printStackTrace();
 		}
 
-		// 添加数据总数少于需要的总数, 开始新的一轮添加
+		// 添加数据条数少于需要的条数, 开始新的一轮添加
 		while (dataCountNow <= allDataTotalCount){
-			//当下批次上传数据后数据量会超过需要的总数, 将这批次的数量改为剩下的数目.
+			//当下批次上传数据后数据量会超过需要的条数, 将这批次的数量改为剩下的条数.
 			if(allDataTotalCount - dataCountNow < oneTurnDataTotalCount) {
 				oneTurnDataTotalCount = allDataTotalCount - dataCountNow + 1;
 			}
@@ -279,7 +285,7 @@ public class DatasMaker {
 			e1.printStackTrace();
 		}
 
-		// 添加数据总数少于需要的总数, 开始新的一轮添加
+		// 添加数据总数少于需要的条数, 开始新的一轮添加
 		while (dataCountNow < allDataTotalCount){
 			dataCountThisTurnNowopy = dataCountThisTurnNow;
 			dataCountThisTurnNow = 0;

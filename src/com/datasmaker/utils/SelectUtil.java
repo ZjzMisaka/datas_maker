@@ -1,10 +1,13 @@
 package com.datasmaker.utils;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
 
 import com.datasmaker.datasmaker.DatasMaker.DBType;
 import com.jcraft.jsch.JSch;
@@ -28,6 +31,7 @@ public class  SelectUtil {
 
 	}
 
+	//直接连接数据库
 	public SelectUtil(DBType dbType, String ip, int port, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -53,6 +57,7 @@ public class  SelectUtil {
 		}
 	}
 
+	// 通过ssh进行连接数据库
 	public SelectUtil(DBType dbType, String ip, int sshPort, int localPort, int dbPort, String sshUserName, String sshPassword, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -84,6 +89,8 @@ public class  SelectUtil {
 		}
 	}
 
+	//进行查询, 返回String类型结果
+	//参数依次为: 需要得到的字段名, 需要查询的表名
 	public String selectString(String resColumnName, String tableName)
 	{
 		ResultSet rs;
@@ -93,7 +100,6 @@ public class  SelectUtil {
 			rs.next();
 			result = rs.getString(resColumnName);
 		} catch (SQLException e) {
-			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 			System.out.println("搜索内容不合法, 退出程序. ");
 			close();
@@ -102,6 +108,8 @@ public class  SelectUtil {
 		return result;
 	}
 
+	//进行查询, 返回String类型结果
+	//参数依次为: 需要得到的字段名, 需要查询的表名, 查询语句WHERE后的判断条件
 	public String selectString(String resColumnName, String tableName, String extra)
 	{
 		ResultSet rs;
@@ -118,7 +126,178 @@ public class  SelectUtil {
 		}
 		return result;
 	}
+	
+	public int selectInt(String resColumnName, String tableName)
+	{
+		ResultSet rs;
+		int result = 0;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
+			rs.next();
+			result = rs.getInt(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
 
+	public int selectInt(String resColumnName, String tableName, String extra)
+	{
+		ResultSet rs;
+		int result = 0;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
+			rs.next();
+			result = rs.getInt(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+	
+	public double selectDouble(String resColumnName, String tableName)
+	{
+		ResultSet rs;
+		double result = 0;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
+			rs.next();
+			result = rs.getDouble(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	public Date selectDate(String resColumnName, String tableName, String extra)
+	{
+		ResultSet rs;
+		Date result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
+			rs.next();
+			result = rs.getDate(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	public Date selectDate(String resColumnName, String tableName)
+	{
+		ResultSet rs;
+		Date result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
+			rs.next();
+			result = rs.getDate(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+	
+	public Time selectTime(String resColumnName, String tableName, String extra)
+	{
+		ResultSet rs;
+		Time result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
+			rs.next();
+			result = rs.getTime(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	public Time selectTime(String resColumnName, String tableName)
+	{
+		ResultSet rs;
+		Time result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
+			rs.next();
+			result = rs.getTime(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+	
+	public Timestamp selectTimestamp(String resColumnName, String tableName, String extra)
+	{
+		ResultSet rs;
+		Timestamp result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
+			rs.next();
+			result = rs.getTimestamp(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	public Timestamp selectTimestamp(String resColumnName, String tableName)
+	{
+		ResultSet rs;
+		Timestamp result = null;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
+			rs.next();
+			result = rs.getTimestamp(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	public double selectDouble(String resColumnName, String tableName, String extra)
+	{
+		ResultSet rs;
+		double result = 0;
+		try {
+			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
+			rs.next();
+			result = rs.getDouble(resColumnName);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("搜索内容不合法, 退出程序. ");
+			close();
+			System.exit(0);
+		}
+		return result;
+	}
+
+	//关闭连接
 	public void close()
 	{
 		try {
