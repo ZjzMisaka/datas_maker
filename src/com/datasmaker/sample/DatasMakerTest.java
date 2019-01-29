@@ -26,8 +26,8 @@ public class DatasMakerTest {
 	// 此方法用于产生数据, 一次调用生成一条.
 	// 参数含义为上轮添加数据是否成功, 若未成功可能需要把数据还原成一轮之前的状态.
 	// 如下面的aint减去了一轮批次添加数据的总数以保持字段的内容连贯.
-	public String makeData(boolean hasSuccessedLastInvoke){
-		if(!hasSuccessedLastInvoke){
+	public String makeData(boolean hasDoneLastInvoke, boolean hasSucceedLastInvoke){
+		if(hasDoneLastInvoke && !hasSucceedLastInvoke){
 			aint -= 40;
 		}
 		Random random = new Random();
