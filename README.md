@@ -77,7 +77,7 @@ public String makeData(boolean hasSuccessedLastInvoke){
 }
 ```
 ### 查询方法: 
-有时候用户添加的数据需要基于其他表的查询结果, 因此封装了查询的方法. [SelectUtil.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/makedatas/utils/SelectUtil.java) <br/>
+有时候用户添加的数据需要基于其他表的查询结果, 因此封装了查询的方法. [SelectUtil.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/datasmaker/utils/SelectUtil.java) <br/>
 #### 连接数据库: 
 **直接连接数据库**
 ```Java
@@ -94,4 +94,4 @@ public String selectString(String resColumnName, String tableName, String extra)
 ```
 * 查询的方法以返回值类型区分为selectString, selectInt等. 第一个参数为需要得到的字段名, 第二个参数为需要查询的表名, 第三个为where后的判断条件. <br/>
 
-完整的示例程序请看项目中[DataMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/makedatas/sample/DatasMakerTest.java)
+完整的示例程序请看项目中[DatasMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/datasmaker/sample/DatasMakerTest.java)
