@@ -285,7 +285,7 @@ public class DatasMaker {
 			e1.printStackTrace();
 		}
 
-		// 添加数据总数少于需要的条数, 开始新的一轮添加
+		// 添加数据条数少于需要的条数, 开始新的一轮添加
 		while (dataCountNow < allDataTotalCount){
 			dataCountThisTurnNowopy = dataCountThisTurnNow;
 			dataCountThisTurnNow = 0;
