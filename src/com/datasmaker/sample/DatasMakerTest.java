@@ -1,9 +1,9 @@
-package com.makedatas.sample;
+package com.datasmaker.sample;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 
-import com.makedatas.datasmaker.DatasMaker;
-import com.makedatas.datasmaker.DatasMaker.DBType;
+import com.datasmaker.datasmaker.DatasMaker;
+import com.datasmaker.datasmaker.DatasMaker.DBType;
 
 /**
  * 
