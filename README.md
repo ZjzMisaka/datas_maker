@@ -41,12 +41,12 @@ DataMaker dataMaker = new DataMaker(DBType.MySQL, "192.111.11.11", 3306, "databa
 ```Java
 public void makeDatas(int allDataTotalCount, String fields, String callerClassName, String methodName)
 ```
-*参数依次为: 需要的数据条数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.*
+*参数依次为: 需要的数据条数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.* <br/>
 **手动输入单批条数**
 ```Java
 public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName)
 ```
-*参数依次为: 需要的数据条数, 一轮批次添加的数据条数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.*
+*参数依次为: 需要的数据条数, 一轮批次添加的数据条数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.* <br/>
 #### 批量上传方法简单示例:
 ```Java
 dataMaker.makeDatas(7654321, 12345, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
