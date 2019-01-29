@@ -94,4 +94,7 @@ public String selectString(String resColumnName, String tableName, String extra)
 ```
 * 查询的方法以返回值类型区分为selectString, selectInt等. 第一个参数为需要得到的字段名, 第二个参数为需要查询的表名, 第三个为where后的判断条件. <br/>
 
-完整的示例程序请看项目中[DatasMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/datasmaker/sample/DatasMakerTest.java)
+完整的示例程序请看项目中[DatasMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/datasmaker/sample/DatasMakerTest.java) <br/>
+* jsch-0.1.55.jar <br/>
+* mysql-connector-java-5.1.47.jar <br/>
+* ojdbc6.jar <br/>
