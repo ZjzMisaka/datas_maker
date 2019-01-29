@@ -63,5 +63,16 @@ public String makeData(boolean hasSuccessedLastInvoke){
 	return dataInt + ", " + dataStr;
 }
 ```
+#### 查询方法: 
+有时候用户添加的数据需要基于其他表的查询结果, 因此封装了查询的方法. [SelectUtil.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/makedatas/utils/SelectUtil.java) <br/>
+```Java
+public SelectUtil(DBType dbType, String ip, int port, String dataBaseName, String userName, String password)
+```
+##### 以查询结果为字符串为例
+```Java
+public String selectString(String resColumnName, String tableName)
+public String selectString(String resColumnName, String tableName, String extra)
+```
+* 查询的方法以返回值类型区分为selectString, selectInt等. 第一个参数为需要得到的字段名, 第二个参数为需要查询的表名, 第三个为where后的判断条件. <br/>
 
 完整的示例程序请看项目中[DataMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/makedatas/sample/DatasMakerTest.java)
