@@ -70,7 +70,7 @@ public String makeData(boolean hasDoneLastInvoke, boolean hasSuccessedLastInvoke
 	}
 	++dataInt;
 	String dataStr = "'Hello World!'";
-	String dataTime = "'" + selectUtil.selectString("CREATE_DATE", "TEST", "CUSTOMER_ID = " + dataInt + "'";
+	String dataTime = "'" + selectUtil.selectString("CREATE_DATE", "TEST", "CUSTOMER_ID = " + dataInt + "'");
 	return dataInt + ", " + dataStr + ", " + dataTime;
 }
 ```
