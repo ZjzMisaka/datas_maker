@@ -261,7 +261,7 @@ public class DatasMaker {
 		Statement stmt = null;
 
 		int dataCountThisTurnNow = 0;
-		int dataCountThisTurnNowopy = 0;
+		int dataCountThisTurnNowCopy = 0;
 
 		try{
 			// 加载驱动
@@ -303,8 +303,8 @@ public class DatasMaker {
 				String result = null;
 				try {
 					// 调用数据获取方法
-					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, dataCountThisTurnNowopy);
-					dataCountThisTurnNowopy = 0;
+					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, dataCountThisTurnNowCopy);
+					dataCountThisTurnNowCopy = 0;
 					hasDoneLastInvoke = false;
 					hasSucceedLastInvoke = true;
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
