@@ -86,7 +86,7 @@ public class DatasMaker {
 	}
 
 	// 通过ssh连接数据库
-	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码 
+	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码
 	public DatasMaker(DBType dbType, String ip, int sshPort, int localPort, int dbPort, String sshUserName, String sshPassword, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -115,7 +115,7 @@ public class DatasMaker {
 	}
 
 	// 通过ssh连接数据库
-	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码, 表名 
+	// 参数依次为: 数据库类型, 地址, ssh端口, 本地端口, 数据库端口, ssh用户名, ssh密码, 数据库用户名, 数据库密码, 表名
 	public DatasMaker(DBType dbType, String ip, int sshPort, int localPort, int dbPort, String sshUserName, String sshPassword, String dataBaseName, String dbUserName, String dbPassword, String tableName){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
@@ -155,18 +155,18 @@ public class DatasMaker {
 			// 获取类
 			classObj = callerCalss.newInstance();
 			// 获取方法
-			method = classObj.getClass().getDeclaredMethod(methodName, boolean.class, boolean.class);
+			method = classObj.getClass().getDeclaredMethod(methodName, boolean.class, boolean.class, int.class);
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException e2) {
 			e2.printStackTrace();
 		}
 
 		StringBuffer sqlDatas;
-		int dataCountNow = 1;
+		int dataCountNow = 0;
 
 		Connection conn = null;
 		Statement stmt = null;
 
-		int dataCountThisTurnNow = 1;
+		int dataCountThisTurnNow = 0;
 
 		try{
 			// 加载驱动
@@ -177,13 +177,13 @@ public class DatasMaker {
 		}
 
 		// 添加数据条数少于需要的条数, 开始新的一轮添加
-		while (dataCountNow <= allDataTotalCount){
+		while (dataCountNow < allDataTotalCount){
 			//当下批次上传数据后数据量会超过需要的条数, 将这批次的数量改为剩下的条数.
 			if(allDataTotalCount - dataCountNow < oneTurnDataTotalCount) {
-				oneTurnDataTotalCount = allDataTotalCount - dataCountNow + 1;
+				oneTurnDataTotalCount = allDataTotalCount - dataCountNow;
 			}
 
-			dataCountThisTurnNow = 1;
+			dataCountThisTurnNow = 0;
 			sqlDatas = new StringBuffer();
 			try{
 				conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
@@ -193,25 +193,24 @@ public class DatasMaker {
 				continue;
 			}
 
-			while (dataCountThisTurnNow <= oneTurnDataTotalCount){
+			while (dataCountThisTurnNow < oneTurnDataTotalCount){
 				String result = null;
 				try {
 					// 调用数据获取方法
-					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke);
-					hasDoneLastInvoke = false;
+					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, oneTurnDataTotalCount);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					e.printStackTrace();
 					System.out.println("遇到未知错误, 退出程序");
 					return;
 				}
-
+				hasDoneLastInvoke = false;
 				hasSucceedLastInvoke = true;
 
 				// 拼接获取到的数据
 				sqlDatas.append("(" + result + "),");
-				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)));
 				++dataCountThisTurnNow;
 				++dataCountNow;
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)));
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号
 			sqlDatas.deleteCharAt(sqlDatas.length() - 1);
@@ -224,9 +223,9 @@ public class DatasMaker {
 				System.out.println("遇到错误, 重新获取数据");
 				dataCountNow -= oneTurnDataTotalCount;
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
-				hasDoneLastInvoke = true;
 				hasSucceedLastInvoke = false;
 			}
+			hasDoneLastInvoke = true;
 
 			try {
 				stmt.close();
@@ -287,7 +286,7 @@ public class DatasMaker {
 
 		// 添加数据条数少于需要的条数, 开始新的一轮添加
 		while (dataCountNow < allDataTotalCount){
-			dataCountThisTurnNowopy = dataCountThisTurnNow;
+			dataCountThisTurnNowCopy = dataCountThisTurnNow;
 			dataCountThisTurnNow = 0;
 
 			sqlDatas = new StringBuffer();
@@ -305,13 +304,13 @@ public class DatasMaker {
 					// 调用数据获取方法
 					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, dataCountThisTurnNowCopy);
 					dataCountThisTurnNowCopy = 0;
-					hasDoneLastInvoke = false;
-					hasSucceedLastInvoke = true;
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					e.printStackTrace();
 					System.out.println("遇到未知错误, 退出程序");
 					return;
 				}
+				hasDoneLastInvoke = false;
+				hasSucceedLastInvoke = true;
 
 				// 如果拼接后的数据长度不大于允许的最大数据包大小, 拼接获取到的数据
 				if(sqlDatas.length() + 27 + tableName.length() + fields.length() + result.length() <= maxAllowedPacket){
@@ -336,6 +335,7 @@ public class DatasMaker {
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
 				hasSucceedLastInvoke = false;
 			}
+			hasDoneLastInvoke = true;
 
 			try {
 				stmt.close();
@@ -343,8 +343,6 @@ public class DatasMaker {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-
-			hasDoneLastInvoke = true;
 		}
 	}
 }

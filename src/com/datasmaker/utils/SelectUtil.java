@@ -79,8 +79,6 @@ public class  SelectUtil {
 			e.printStackTrace();
 		}
 
-		Connection conn = null;
-		stmt = null;
 		try{
 			conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
 			stmt = conn.createStatement();
@@ -126,7 +124,7 @@ public class  SelectUtil {
 		}
 		return result;
 	}
-	
+
 	public int selectInt(String resColumnName, String tableName)
 	{
 		ResultSet rs;
@@ -160,7 +158,7 @@ public class  SelectUtil {
 		}
 		return result;
 	}
-	
+
 	public double selectDouble(String resColumnName, String tableName)
 	{
 		ResultSet rs;
@@ -211,7 +209,7 @@ public class  SelectUtil {
 		}
 		return result;
 	}
-	
+
 	public Time selectTime(String resColumnName, String tableName, String extra)
 	{
 		ResultSet rs;
@@ -245,7 +243,7 @@ public class  SelectUtil {
 		}
 		return result;
 	}
-	
+
 	public Timestamp selectTimestamp(String resColumnName, String tableName, String extra)
 	{
 		ResultSet rs;
