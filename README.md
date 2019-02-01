@@ -50,8 +50,13 @@ public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String f
 ```
 *参数依次为: 需要的数据条数, 一轮批次添加的数据条数, 需要传递的字段名列表, 用作制造数据的方法所属的类名, 用作制造数据的方法的名字.* <br/>
 #### 批量上传方法简单示例:
+**总共上传7654321条数据, 每批12345条, 三个字段.**
 ```Java
 dataMaker.makeDatas(7654321, 12345, "aint, astring, adate", "com.makedatas.sample.DataMakerTest", "makeData");
+```
+**总共上传7654321条数据, 每批条数自动判断, 全部字段.**
+```Java
+dataMaker.makeDatas(7654321, "", "com.makedatas.sample.DataMakerTest", "makeData");
 ```
 ### 制造数据方法: 
 * 方法名任意. <br/>
