@@ -278,6 +278,7 @@ public class DatasMaker {
 			ResultSet resultMaxAllowedPacket = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
 			resultMaxAllowedPacket.next();
 			maxAllowedPacket = resultMaxAllowedPacket.getInt("Value");
+			resultMaxAllowedPacket.close();
 			stmt.close();
 			conn.close();
 		} catch (SQLException e1) {

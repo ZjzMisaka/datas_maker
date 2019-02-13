@@ -21,6 +21,7 @@ public class  SelectUtil {
 	private String jdbcDriver;
 	private String dbUrl;
 
+	ResultSet rs;
 	private Statement stmt = null;
 	private Connection conn = null;
 
@@ -91,7 +92,6 @@ public class  SelectUtil {
 	//参数依次为: 需要得到的字段名, 需要查询的表名
 	public String selectString(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		String result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -110,7 +110,6 @@ public class  SelectUtil {
 	//参数依次为: 需要得到的字段名, 需要查询的表名, 查询语句WHERE后的判断条件
 	public String selectString(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		String result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -127,7 +126,6 @@ public class  SelectUtil {
 
 	public int selectInt(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		int result = 0;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -144,7 +142,6 @@ public class  SelectUtil {
 
 	public int selectInt(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		int result = 0;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -161,7 +158,6 @@ public class  SelectUtil {
 
 	public double selectDouble(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		double result = 0;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -178,7 +174,6 @@ public class  SelectUtil {
 
 	public Date selectDate(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		Date result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -195,7 +190,6 @@ public class  SelectUtil {
 
 	public Date selectDate(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		Date result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -212,7 +206,6 @@ public class  SelectUtil {
 
 	public Time selectTime(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		Time result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -229,7 +222,6 @@ public class  SelectUtil {
 
 	public Time selectTime(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		Time result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -246,7 +238,6 @@ public class  SelectUtil {
 
 	public Timestamp selectTimestamp(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		Timestamp result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -263,7 +254,6 @@ public class  SelectUtil {
 
 	public Timestamp selectTimestamp(String resColumnName, String tableName)
 	{
-		ResultSet rs;
 		Timestamp result = null;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName);
@@ -280,7 +270,6 @@ public class  SelectUtil {
 
 	public double selectDouble(String resColumnName, String tableName, String extra)
 	{
-		ResultSet rs;
 		double result = 0;
 		try {
 			rs = stmt.executeQuery("select " + resColumnName + " from " + tableName + " where " + extra);
@@ -299,6 +288,7 @@ public class  SelectUtil {
 	public void close()
 	{
 		try {
+			rs.close();
 			stmt.close();
 			conn.close();
 		} catch (SQLException e) {
