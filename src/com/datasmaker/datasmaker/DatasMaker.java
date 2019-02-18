@@ -250,6 +250,7 @@ public class DatasMaker {
 
 	public void makeDatas(int allDataTotalCount, String fields, String callerClassName, String methodName){
 		int maxAllowedPacket = 0;
+		String characterSetDatabase = null;
 
 		Class<?> callerCalss;
 		Object classObj = null;
@@ -287,10 +288,13 @@ public class DatasMaker {
 		//获取数据库允许的最大数据包大小
 		try {
 			stmt = conn.createStatement();
-			ResultSet resultMaxAllowedPacket = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
-			resultMaxAllowedPacket.next();
-			maxAllowedPacket = resultMaxAllowedPacket.getInt("Value");
-			resultMaxAllowedPacket.close();
+			ResultSet resultSet = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
+			resultSet.next();
+			maxAllowedPacket = resultSet.getInt("Value");
+			resultSet =  stmt.executeQuery("show variables like 'character_set_database';");
+			resultSet.next();
+			characterSetDatabase = resultSet.getString("Value");
+			resultSet.close();
 			stmt.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
@@ -324,13 +328,18 @@ public class DatasMaker {
 				hasSucceedLastInvoke = true;
 
 				// 如果拼接后的数据长度不大于允许的最大数据包大小, 拼接获取到的数据
-				if(sqlDatas.length() + 27 + tableName.length() + fields.length() + result.length() <= maxAllowedPacket){
-					sqlDatas.append("(" + result + "),");
-					++dataCountThisTurnNow;
-					++dataCountNow;
-					System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)));
-				} else {
-					break;
+				try {
+					if(sqlDatas.toString().getBytes().length + "INSERT INTO `` () VALUES (),".getBytes(characterSetDatabase).length + tableName.getBytes(characterSetDatabase).length + fields.getBytes(characterSetDatabase).length + result.getBytes(characterSetDatabase).length <= maxAllowedPacket){
+						sqlDatas.append("(" + result + "),");
+						++dataCountThisTurnNow;
+						++dataCountNow;
+						System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)));
+					} else {
+						break;
+					}
+				} catch (UnsupportedEncodingException e) {
+					// TODO 自動生成された catch ブロック
+					e.printStackTrace();
 				}
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号
@@ -363,7 +372,6 @@ public class DatasMaker {
 		try {
 			conn.close();
 		} catch (SQLException e) {
-			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
 	}
