@@ -172,6 +172,8 @@ public class DatasMaker {
 			// 加载驱动
 			Class.forName(jdbcDriver);
 			DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+			conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+			conn.setAutoCommit(false);
 		} catch (SQLException | ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -186,7 +188,6 @@ public class DatasMaker {
 			dataCountThisTurnNow = 0;
 			sqlDatas = new StringBuffer();
 			try{
-				conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -217,6 +218,7 @@ public class DatasMaker {
 			try{
 				// 执行添加数据的sql语句, 一轮添加完成.
 				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				conn.commit();
 			} catch (SQLException e) {
 				// 当某条数据不合法, 这次添加不作数, 重新获取数据.
 				e.printStackTrace();
@@ -224,16 +226,25 @@ public class DatasMaker {
 				dataCountNow -= oneTurnDataTotalCount;
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
 				hasSucceedLastInvoke = false;
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					// TODO 自動生成された catch ブロック
+					e1.printStackTrace();
+				}
 			}
 			hasDoneLastInvoke = true;
 
 			try {
 				stmt.close();
-				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-
+		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -266,6 +277,8 @@ public class DatasMaker {
 			// 加载驱动
 			Class.forName(jdbcDriver);
 			DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+			conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+			conn.setAutoCommit(false);
 		} catch (SQLException | ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
@@ -273,14 +286,12 @@ public class DatasMaker {
 
 		//获取数据库允许的最大数据包大小
 		try {
-			conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
 			stmt = conn.createStatement();
 			ResultSet resultMaxAllowedPacket = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
 			resultMaxAllowedPacket.next();
 			maxAllowedPacket = resultMaxAllowedPacket.getInt("Value");
 			resultMaxAllowedPacket.close();
 			stmt.close();
-			conn.close();
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
@@ -292,7 +303,6 @@ public class DatasMaker {
 
 			sqlDatas = new StringBuffer();
 			try{
-				conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -328,6 +338,7 @@ public class DatasMaker {
 			try{
 				// 执行添加数据的sql语句, 一轮添加完成.
 				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				conn.commit();
 			} catch (SQLException e) {
 				// 当某条数据不合法, 这次添加不作数, 重新获取数据.
 				e.printStackTrace();
@@ -335,15 +346,25 @@ public class DatasMaker {
 				dataCountNow -= dataCountThisTurnNow;
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
 				hasSucceedLastInvoke = false;
+				try {
+					conn.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 			}
 			hasDoneLastInvoke = true;
 
 			try {
 				stmt.close();
-				conn.close();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
 		}
 	}
 }
