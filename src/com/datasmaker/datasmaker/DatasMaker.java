@@ -1,4 +1,5 @@
 package com.datasmaker.datasmaker;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -19,9 +20,9 @@ import com.jcraft.jsch.Session;
 
 public class DatasMaker {
 	//上轮添加数据是否完成
-	boolean hasDoneLastInvoke = false;
+	boolean hasDoneLastTurn = false;
 	// 上轮添加数据是否成功
-	boolean hasSucceedLastInvoke = true;
+	boolean hasSucceedLastTurn = false;
 	// 目前可以选择的数据库
 	public enum DBType{
 		MySQL, Oracle
@@ -160,7 +161,7 @@ public class DatasMaker {
 			e2.printStackTrace();
 		}
 
-		StringBuffer sqlDatas;
+		StringBuffer sqlDatas;		//用来存储用括号逗号拼接起来的数据
 		int dataCountNow = 0;
 
 		Connection conn = null;
@@ -198,42 +199,43 @@ public class DatasMaker {
 				String result = null;
 				try {
 					// 调用数据获取方法
-					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, oneTurnDataTotalCount);
+					result = (String)method.invoke(classObj, hasDoneLastTurn, hasSucceedLastTurn, oneTurnDataTotalCount);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 					e.printStackTrace();
-					System.out.println("遇到未知错误, 退出程序");
+					System.out.println("遇到未知错误, 退出程序. ");
 					return;
 				}
-				hasDoneLastInvoke = false;
-				hasSucceedLastInvoke = true;
+				hasDoneLastTurn = false;
+				hasSucceedLastTurn = true;
 
 				// 拼接获取到的数据
 				sqlDatas.append("(" + result + "),");
 				++dataCountThisTurnNow;
 				++dataCountNow;
-				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)));
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "MAKING");
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号
 			sqlDatas.deleteCharAt(sqlDatas.length() - 1);
 			try{
 				// 执行添加数据的sql语句, 一轮添加完成.
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "UPDATING");
 				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "DONE");
 				conn.commit();
 			} catch (SQLException e) {
 				// 当某条数据不合法, 这次添加不作数, 重新获取数据.
 				e.printStackTrace();
-				System.out.println("遇到错误, 重新获取数据");
+				System.out.println("遇到错误, 重新获取数据. ");
 				dataCountNow -= oneTurnDataTotalCount;
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
-				hasSucceedLastInvoke = false;
+				hasSucceedLastTurn = false;
 				try {
 					conn.rollback();
 				} catch (SQLException e1) {
-					// TODO 自動生成された catch ブロック
 					e1.printStackTrace();
 				}
 			}
-			hasDoneLastInvoke = true;
+			hasDoneLastTurn = true;
 
 			try {
 				stmt.close();
@@ -265,7 +267,17 @@ public class DatasMaker {
 			e2.printStackTrace();
 		}
 
-		StringBuffer sqlDatas;
+		String result;
+		String resultTemp = null;
+
+		StringBuffer sqlDatas;		//用来存储用括号逗号拼接起来的数据
+		int sqlDatasBytesLenth = 0;	//字符串的字节数, 下同
+		int insertSqlOtherStrBytesLenth = 0;
+		int tableNameBytesLenth = 0;
+		int fieldsBytesLenth = 0;
+		int resultBytesLenth = 0;
+		int extraBytesLenth = 0;
+
 		int dataCountNow = 0;
 
 		Connection conn = null;
@@ -285,7 +297,7 @@ public class DatasMaker {
 		}
 
 
-		//获取数据库允许的最大数据包大小
+		//获取数据库允许的最大数据包大小与数据库使用的编码格式
 		try {
 			stmt = conn.createStatement();
 			ResultSet resultSet = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
@@ -300,10 +312,20 @@ public class DatasMaker {
 			e1.printStackTrace();
 		}
 
+		try {
+			//根据数据库使用的编码初始化字节数
+			insertSqlOtherStrBytesLenth = "INSERT INTO `` () VALUES ".getBytes(characterSetDatabase).length;
+			tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
+			fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
+			extraBytesLenth = "(),".getBytes(characterSetDatabase).length;
+		} catch (UnsupportedEncodingException e2) {
+			e2.printStackTrace();
+		}
+
 		// 添加数据条数少于需要的条数, 开始新的一轮添加
 		while (dataCountNow < allDataTotalCount){
-			dataCountThisTurnNowCopy = dataCountThisTurnNow;
 			dataCountThisTurnNow = 0;
+			sqlDatasBytesLenth = 0;
 
 			sqlDatas = new StringBuffer();
 			try{
@@ -314,54 +336,62 @@ public class DatasMaker {
 			}
 
 			while (dataCountNow < allDataTotalCount){
-				String result = null;
 				try {
 					// 调用数据获取方法
-					result = (String)method.invoke(classObj, hasDoneLastInvoke, hasSucceedLastInvoke, dataCountThisTurnNowCopy);
+					if (hasDoneLastTurn && hasSucceedLastTurn){
+						result = resultTemp;
+					} else {
+						result = (String)method.invoke(classObj, hasDoneLastTurn, hasSucceedLastTurn, dataCountThisTurnNowCopy);
+					}
+					resultBytesLenth = result.getBytes(characterSetDatabase).length;
 					dataCountThisTurnNowCopy = 0;
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | UnsupportedEncodingException e) {
 					e.printStackTrace();
-					System.out.println("遇到未知错误, 退出程序");
+					System.out.println("遇到未知错误, 退出程序. ");
 					return;
 				}
-				hasDoneLastInvoke = false;
-				hasSucceedLastInvoke = true;
+				hasDoneLastTurn = false;
+				hasSucceedLastTurn = true;
 
-				// 如果拼接后的数据长度不大于允许的最大数据包大小, 拼接获取到的数据
-				try {
-					if(sqlDatas.toString().getBytes().length + "INSERT INTO `` () VALUES (),".getBytes(characterSetDatabase).length + tableName.getBytes(characterSetDatabase).length + fields.getBytes(characterSetDatabase).length + result.getBytes(characterSetDatabase).length <= maxAllowedPacket){
-						sqlDatas.append("(" + result + "),");
-						++dataCountThisTurnNow;
-						++dataCountNow;
-						System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)));
-					} else {
-						break;
-					}
-				} catch (UnsupportedEncodingException e) {
-					// TODO 自動生成された catch ブロック
-					e.printStackTrace();
+				if(sqlDatasBytesLenth + insertSqlOtherStrBytesLenth + tableNameBytesLenth + fieldsBytesLenth + resultBytesLenth + extraBytesLenth <= maxAllowedPacket){
+					sqlDatas.append("(" + result + "),");
+					sqlDatasBytesLenth += (resultBytesLenth + extraBytesLenth);
+					++dataCountThisTurnNow;
+					++dataCountNow;
+					System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "\t\t\t" + "MAKING");
+				} else {
+					dataCountThisTurnNowCopy = dataCountThisTurnNow;
+					resultTemp = result;
+					break;
 				}
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号
-			sqlDatas.deleteCharAt(sqlDatas.length() - 1);
+			if(sqlDatas.length() > 0) {
+				sqlDatas.deleteCharAt(sqlDatas.length() - 1);
+			} else {
+				System.out.println("单条数据长度过长, 无法上传. ");
+				return;
+			}
 			try{
 				// 执行添加数据的sql语句, 一轮添加完成.
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "\t\t\t" + "UPDATING");
 				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "\t\t\t" + "DONE");
 				conn.commit();
 			} catch (SQLException e) {
 				// 当某条数据不合法, 这次添加不作数, 重新获取数据.
 				e.printStackTrace();
-				System.out.println("遇到错误, 重新获取数据");
+				System.out.println("遇到错误, 重新获取数据. ");
 				dataCountNow -= dataCountThisTurnNow;
 				// 添加数据不成功, hasSucceedLastInvoke置为false, 在下次invoke方法调用时传递给制造数据的方法
-				hasSucceedLastInvoke = false;
+				hasSucceedLastTurn = false;
 				try {
 					conn.rollback();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
 			}
-			hasDoneLastInvoke = true;
+			hasDoneLastTurn = true;
 
 			try {
 				stmt.close();
