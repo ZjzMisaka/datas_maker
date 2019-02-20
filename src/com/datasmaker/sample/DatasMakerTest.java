@@ -43,13 +43,13 @@ public class DatasMakerTest {
 	// 此方法用于产生数据, 一次调用生成一条.
 	// 参数hasSucceedLastInvoke含义为上轮添加数据是否成功, 若未成功可能需要把数据还原成一轮之前的状态.
 	// 如下面的aint减去了一轮批次添加数据的条数以保持字段的内容连贯.
-	public String makeData(boolean hasDoneLastInvoke, boolean hasSucceedLastInvoke, int lastTurnDataTotalCount){
-		if(!hasSucceedLastInvoke){
+	public String makeData(boolean hasFinishedTurnLastInvoke, boolean hasSucceedLastTurn, int lastTurnDataTotalCount){
+		if(hasFinishedTurnLastInvoke && !hasSucceedLastTurn){
 			aint -= lastTurnDataTotalCount;
 		}
+		++aint;
 		Random random = new Random();
 		int r = random.nextInt(20000);
-		++aint;
 		if (r == 0){
 			// 1/20000的概率出现不合法的数据.
 			return "";
