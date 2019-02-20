@@ -69,8 +69,8 @@ dataMaker.makeDatas(7654321, "", "com.makedatas.sample.DataMakerTest", "makeData
 ```Java
 /*static int dataInt = 0;*/
 /*DO SOMETHING*/
-public String makeData(boolean hasDoneLastInvoke, boolean hasSuccessedLastInvoke, int lastTurnDataTotalCount){
-	if(!hasSuccessedLastInvoke){
+public String makeData(boolean hasFinishedTurnLastInvoke, boolean hasSucceedLastTurn, int lastTurnDataTotalCount){
+	if(hasFinishedTurnLastInvoke && !hasSucceedLastTurn){
 		dataInt -= lastTurnDataTotalCount;
 	}
 	++dataInt;
