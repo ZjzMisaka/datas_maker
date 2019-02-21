@@ -161,7 +161,7 @@ public class DatasMaker {
 			e2.printStackTrace();
 		}
 
-		StringBuffer sqlDatas;		//用来存储用括号逗号拼接起来的数据.
+		StringBuilder sqlDatas;		//用来存储用括号逗号拼接起来的数据.
 		int dataCountNow = 0;
 
 		Connection conn = null;
@@ -187,7 +187,7 @@ public class DatasMaker {
 			}
 
 			dataCountThisTurnNow = 0;
-			sqlDatas = new StringBuffer();
+			sqlDatas = new StringBuilder();
 			try{
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
@@ -208,7 +208,7 @@ public class DatasMaker {
 				hasFinishedTurnLastInvoke = false;
 
 				// 拼接获取到的数据.
-				sqlDatas.append("(" + result + "),");
+				sqlDatas.append("(").append(result).append("),");
 				++dataCountThisTurnNow;
 				++dataCountNow;
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "MAKING");
@@ -271,7 +271,7 @@ public class DatasMaker {
 		String result;
 		String resultTemp = null;
 
-		StringBuffer sqlDatas;		//用来存储用括号逗号拼接起来的数据.
+		StringBuilder sqlDatas;		//用来存储用括号逗号拼接起来的数据.
 		int sqlDatasBytesLenth = 0;	//字符串的字节数, 下同.
 		int insertSqlOtherStrBytesLenth = 0;
 		int tableNameBytesLenth = 0;
@@ -297,7 +297,6 @@ public class DatasMaker {
 		} catch (SQLException | ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
-
 
 		//获取数据库允许的最大数据包大小与数据库使用的编码格式.
 		try {
@@ -331,7 +330,7 @@ public class DatasMaker {
 			resultGetCountThisTurnNow = 0;
 			dataAppendCountThisTurnNow = 0;
 
-			sqlDatas = new StringBuffer();
+			sqlDatas = new StringBuilder();
 			try{
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
@@ -360,7 +359,7 @@ public class DatasMaker {
 
 				// 如果拼接这条数据后的字节总数没有超出数据库允许的最大数据包大小限制则拼接这条数据, 如果超出限制则保存这条数据, 在下一轮中添加.
 				if(sqlDatasBytesLenth + insertSqlOtherStrBytesLenth + tableNameBytesLenth + fieldsBytesLenth + resultBytesLenth + extraBytesLenth <= maxAllowedPacket){
-					sqlDatas.append("(" + result + "),");
+					sqlDatas.append("(").append(result).append("),");
 					sqlDatasBytesLenth += (resultBytesLenth + extraBytesLenth);
 					++dataAppendCountThisTurnNow;
 					++dataCountNow;
