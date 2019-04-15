@@ -32,6 +32,8 @@ public class DatasMaker {
 	private Session session;
 	private int assinged_port;
 
+	private DBType dbType;
+
 	private String jdbcDriver;
 	private String dbUrl;
 
@@ -66,6 +68,7 @@ public class DatasMaker {
 			this.jdbcDriver =  dbTypeOracle;
 			this.dbUrl =  "jdbc:oracle:thin:@//" + ip + ":" + port + "/" + dataBaseName;
 		}
+		this.dbType = dbType;
 		this.dbUrl =  "jdbc:mysql://" + ip + ":" + port + "/" + dataBaseName;
 		this.dbUserName = dbUserName;
 		this.dbPassword = dbPassword;
@@ -81,6 +84,7 @@ public class DatasMaker {
 			this.jdbcDriver =  dbTypeOracle;
 			this.dbUrl =  "jdbc:oracle:thin:@//" + ip + ":" + port + "/" + dataBaseName;
 		}
+		this.dbType = dbType;
 		this.dbUserName = dbUserName;
 		this.dbPassword = dbPassword;
 		this.setTableName(tableName);
@@ -96,6 +100,7 @@ public class DatasMaker {
 			this.jdbcDriver =  dbTypeOracle;
 			this.dbUrl =  "jdbc:oracle:thin:@//localhost:" + localPort + "/" + dataBaseName;
 		}
+		this.dbType = dbType;
 		this.dbUserName = dbUserName;
 		this.dbPassword = dbPassword;
 
@@ -125,6 +130,7 @@ public class DatasMaker {
 			this.jdbcDriver =  dbTypeOracle;
 			this.dbUrl =  "jdbc:oracle:thin:@//localhost:" + localPort + "/" + dataBaseName;
 		}
+		this.dbType = dbType;
 		this.dbUserName = dbUserName;
 		this.dbPassword = dbPassword;
 		this.setTableName(tableName);
@@ -147,7 +153,7 @@ public class DatasMaker {
 
 	// methodName为此方法需要调用的制造数据的方法的名字, 如"makeData", callerClassName为制造数据的方法所属的类的名字, 如"com.test.DataMakerTest".
 	// 制造数据方法和它的所属类的访问修饰符必须为public.
-	public void makeDatas(int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName){
+	public void makeDatas (int allDataTotalCount, int oneTurnDataTotalCount, String fields, String callerClassName, String methodName) {
 		Class<?> callerCalss;
 		Object classObj = null;
 		Method method = null;
@@ -301,12 +307,28 @@ public class DatasMaker {
 		//获取数据库允许的最大数据包大小与数据库使用的编码格式.
 		try {
 			stmt = conn.createStatement();
-			ResultSet resultSet = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
-			resultSet.next();
-			maxAllowedPacket = resultSet.getInt("Value");
-			resultSet =  stmt.executeQuery("show variables like 'character_set_database';");
-			resultSet.next();
-			characterSetDatabase = resultSet.getString("Value");
+			ResultSet resultSet = null;
+			if (dbType == DBType.MySQL)
+			{
+				resultSet = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
+				resultSet.next();
+				maxAllowedPacket = resultSet.getInt("Value");
+
+				resultSet =  stmt.executeQuery("show variables like 'character_set_database';");
+				resultSet.next();
+				characterSetDatabase = resultSet.getString("Value");
+			}
+			else if (dbType == DBType.Oracle)
+			{
+				resultSet = stmt.executeQuery("show parameter db_block_size;");
+				resultSet.next();
+				maxAllowedPacket = resultSet.getInt("Value") * 4194303;
+
+				resultSet =  stmt.executeQuery("select * from nls_database_parameters;");
+				resultSet.next();
+				characterSetDatabase = resultSet.getString("Value");
+			}
+
 			resultSet.close();
 			stmt.close();
 		} catch (SQLException e1) {
@@ -315,10 +337,20 @@ public class DatasMaker {
 
 		try {
 			//根据数据库使用的编码初始化字节数.
-			insertSqlOtherStrBytesLenth = "INSERT INTO `` () VALUES ".getBytes(characterSetDatabase).length;
-			tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
-			fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
-			extraBytesLenth = "(),".getBytes(characterSetDatabase).length;
+			if (dbType == DBType.MySQL)
+			{
+				insertSqlOtherStrBytesLenth = "INSERT INTO `` () VALUES ".getBytes(characterSetDatabase).length;
+				tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
+				fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
+				extraBytesLenth = "(),".getBytes(characterSetDatabase).length;
+			}
+			else if (dbType == DBType.Oracle)
+			{
+				insertSqlOtherStrBytesLenth = "INSERT ALL SELECT 1 FROM DUAL;".getBytes(characterSetDatabase).length;
+				tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
+				fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
+				extraBytesLenth = " INTO () VALUES ()".getBytes(characterSetDatabase).length;
+			}
 		} catch (UnsupportedEncodingException e2) {
 			e2.printStackTrace();
 		}
@@ -331,7 +363,7 @@ public class DatasMaker {
 			dataAppendCountThisTurnNow = 0;
 
 			sqlDatas = new StringBuilder();
-			try{
+			try {
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -358,28 +390,37 @@ public class DatasMaker {
 				hasFinishedTurnLastInvoke = false;
 
 				// 如果拼接这条数据后的字节总数没有超出数据库允许的最大数据包大小限制则拼接这条数据, 如果超出限制则保存这条数据, 在下一轮中添加.
-				if(sqlDatasBytesLenth + insertSqlOtherStrBytesLenth + tableNameBytesLenth + fieldsBytesLenth + resultBytesLenth + extraBytesLenth <= maxAllowedPacket){
+				if (dbType == DBType.MySQL && sqlDatasBytesLenth + insertSqlOtherStrBytesLenth + tableNameBytesLenth + fieldsBytesLenth + resultBytesLenth + extraBytesLenth <= maxAllowedPacket){
 					sqlDatas.append("(").append(result).append("),");
 					sqlDatasBytesLenth += (resultBytesLenth + extraBytesLenth);
 					++dataAppendCountThisTurnNow;
 					++dataCountNow;
 					System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "MAKING");
+				} else if (dbType == DBType.Oracle) {
+					sqlDatas.append(" INTO ").append(tableName).append("(").append(fields).append(")").append(" VALUES (").append(result).append(")");
 				} else {
 					resultTemp = result;
 					break;
 				}
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号.
-			if(sqlDatas.length() > 0) {
+			if (sqlDatas.length() > 0) {
 				sqlDatas.deleteCharAt(sqlDatas.length() - 1);
 			} else {
 				System.out.println("单条数据长度过长, 无法上传. ");
 				return;
 			}
-			try{
+			try {
 				// 执行添加数据的sql语句, 一轮添加完成.
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "UPDATING");
-				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				if (dbType == DBType.MySQL)
+				{
+					stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				}
+				else if (dbType == DBType.Oracle)
+				{
+					stmt.executeUpdate("INSERT ALL" + sqlDatas.toString() + " SELECT 1 FROM DUAL;");
+				}
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "DONE");
 				conn.commit();
 				hasSucceedLastTurn = true;
