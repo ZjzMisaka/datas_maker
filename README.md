@@ -38,6 +38,12 @@ public DatasMaker(DBType dbType, String ip, int sshPort, int localPort, int dbPo
 ```Java
 DataMaker dataMaker = new DataMaker(DBType.MySQL, "192.111.11.11", 3306, "database_name", "root", "root", "table_name");
 ```
+#### 设置useSSL参数: 
+* 当数据库为MySQL时, 可以设置useSSL参数, 参数代表是否使用SSL与服务器通信. 如果不设置, 默认为false.
+```Java
+DatasMaker dataMaker = new DatasMaker(/*...*/);
+dataMaker.setIsUseSSL(true);
+```
 ### 批量上传方法: 
 **自动判断单批条数**
 ```Java
@@ -101,6 +107,7 @@ public String selectString(String resColumnName, String tableName, String extra)
 完整的示例程序请看项目中[DatasMakerTest.java](https://github.com/ZjzMisaka/datas_maker/blob/master/src/com/datasmaker/sample/DatasMakerTest.java) <br/>
 
 ----
+## 需要的jar包: 
 * jsch-0.1.55.jar <br/>
 * mysql-connector-java-5.1.47.jar <br/>
 * ojdbc6.jar <br/>
