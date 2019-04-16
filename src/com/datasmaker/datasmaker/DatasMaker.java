@@ -42,7 +42,10 @@ public class DatasMaker {
 
 	private String tableName;
 
-	private final String dbTypeMySQL = "com.mysql.jdbc.Driver";
+	private boolean isUseSSL = false;
+
+	//private final String dbTypeMySQL = "com.mysql.jdbc.Driver";	//老版本jdbc
+	private final String dbTypeMySQL = "com.mysql.cj.jdbc.Driver";
 	private final String dbTypeOracle = "oracle.jdbc.driver.OracleDriver";
 
 	// 获取当前表的名字.
@@ -55,6 +58,19 @@ public class DatasMaker {
 		this.tableName = tableName;
 	}
 
+	public void setIsUseSSL(boolean isUseSSL) {
+		if (dbType == DBType.MySQL) {
+			this.isUseSSL = isUseSSL;
+			this.dbUrl = this.dbUrl.split("[?]")[0].concat("?" + getIsUseSSL());
+		} else {
+			System.out.println("错误: 非MySQL数据库无需指定useSSL参数. ");
+		}
+	}
+
+	public boolean getIsUseSSL() {
+		return this.isUseSSL;
+	}
+
 	public DatasMaker(){
 	}
 
@@ -63,7 +79,7 @@ public class DatasMaker {
 	public DatasMaker(DBType dbType, String ip, int port, String dataBaseName, String dbUserName, String dbPassword){
 		if (dbType == DBType.MySQL){
 			this.jdbcDriver =  dbTypeMySQL;
-			this.dbUrl =  "jdbc:mysql://" + ip + ":" + port + "/" + dataBaseName;
+			this.dbUrl =  "jdbc:mysql://" + ip + ":" + port + "/" + dataBaseName + "?useSSL=" + this.isUseSSL;
 		} else if(dbType == DBType.Oracle) {
 			this.jdbcDriver =  dbTypeOracle;
 			this.dbUrl =  "jdbc:oracle:thin:@//" + ip + ":" + port + "/" + dataBaseName;
@@ -317,6 +333,12 @@ public class DatasMaker {
 				resultSet =  stmt.executeQuery("show variables like 'character_set_database';");
 				resultSet.next();
 				characterSetDatabase = resultSet.getString("Value");
+
+				// 高版本MySQL增加了utf8mb4编码, java无法处理. 但是utf8mb4完全兼容utf8, 因此直接使用utf8计算.
+				if (characterSetDatabase == "utf8mb4")
+				{
+					characterSetDatabase = "utf8";
+				}
 			}
 			else if (dbType == DBType.Oracle)
 			{

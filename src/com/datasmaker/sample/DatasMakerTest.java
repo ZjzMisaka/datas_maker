@@ -30,6 +30,8 @@ public class DatasMakerTest {
 	public static void main(String[] args) {
 		// 参数依次为: 数据库类型, 数据库地址, 数据库接口, 数据库名, 数据库账号, 数据库密码, 数据库表名
 		DatasMaker dataMaker = new DatasMaker(DBType.MySQL, "192.111.11.11", 22, 5217, 3306, "sshUserName", "sshPwd", "database_name", "dbUserName", "dbPwd", "table_name");
+		//如果数据库是MySQL, 可以设置是否使用SSL与服务器通信. 如果不设置, 默认为false.
+		dataMaker.setIsUseSSL(true);
 		// 初始化查询工具
 		// 参数依次为: 数据库类型, 地址, ssh接口, 本地接口, 数据库接口, ssh用户名, ssh密码, 数据库名, 数据库用户名, 数据库密码.
 		selectUtil = new SelectUtil(DBType.MySQL, "192.111.11.11", 22, 5218, 3306, "sshUserName", "sshPwd", "database_name", "dbUserName", "dbPwd");
