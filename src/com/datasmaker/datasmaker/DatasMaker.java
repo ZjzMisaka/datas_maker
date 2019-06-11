@@ -210,7 +210,7 @@ public class DatasMaker {
 
 			dataCountThisTurnNow = 0;
 			sqlDatas = new StringBuilder();
-			try{
+			try {
 				stmt = conn.createStatement();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -230,17 +230,27 @@ public class DatasMaker {
 				hasFinishedTurnLastInvoke = false;
 
 				// 拼接获取到的数据.
-				sqlDatas.append("(").append(result).append("),");
+				if (dbType == DBType.MySQL) {
+					sqlDatas.append("(").append(result).append("),");
+				} else if (dbType == DBType.Oracle) {
+					sqlDatas.append(" INTO ").append(tableName).append("(").append(fields).append(")").append(" VALUES (").append(result).append(")");
+				}
 				++dataCountThisTurnNow;
 				++dataCountNow;
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "MAKING");
 			}
 			// 去除拼接完毕的数据字符串最后多余的逗号.
-			sqlDatas.deleteCharAt(sqlDatas.length() - 1);
+			if (dbType == DBType.MySQL) {
+				sqlDatas.deleteCharAt(sqlDatas.length() - 1);
+			}
 			try{
 				// 执行添加数据的sql语句, 一轮添加完成.
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "UPDATING");
-				stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				if (dbType == DBType.MySQL) {
+					stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
+				} else if (dbType == DBType.Oracle) {
+					stmt.executeUpdate("INSERT ALL" + sqlDatas.toString() + " SELECT * FROM DUAL");
+				}
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataCountThisTurnNow + "/" + oneTurnDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountThisTurnNow / (oneTurnDataTotalCount * 1.0)) + "\t\t\t" + "DONE");
 				conn.commit();
 				hasSucceedLastTurn = true;
@@ -324,8 +334,7 @@ public class DatasMaker {
 		try {
 			stmt = conn.createStatement();
 			ResultSet resultSet = null;
-			if (dbType == DBType.MySQL)
-			{
+			if (dbType == DBType.MySQL) {
 				resultSet = stmt.executeQuery("show VARIABLES like '%max_allowed_packet%';");
 				resultSet.next();
 				maxAllowedPacket = resultSet.getInt("Value");
@@ -335,18 +344,15 @@ public class DatasMaker {
 				characterSetDatabase = resultSet.getString("Value");
 
 				// 高版本MySQL增加了utf8mb4编码, java无法处理. 但是utf8mb4完全兼容utf8, 因此直接使用utf8计算.
-				if (characterSetDatabase == "utf8mb4")
-				{
+				if (characterSetDatabase == "utf8mb4") {
 					characterSetDatabase = "utf8";
 				}
-			}
-			else if (dbType == DBType.Oracle)
-			{
-				resultSet = stmt.executeQuery("show parameter db_block_size;");
+			} else if (dbType == DBType.Oracle) {
+				resultSet = stmt.executeQuery("select value from v$parameter where name='db_block_size'");
 				resultSet.next();
 				maxAllowedPacket = resultSet.getInt("Value") * 4194303;
 
-				resultSet =  stmt.executeQuery("select * from nls_database_parameters;");
+				resultSet =  stmt.executeQuery("select * from nls_database_parameters where parameter ='NLS_CHARACTERSET'");
 				resultSet.next();
 				characterSetDatabase = resultSet.getString("Value");
 			}
@@ -359,22 +365,20 @@ public class DatasMaker {
 
 		try {
 			//根据数据库使用的编码初始化字节数.
-			if (dbType == DBType.MySQL)
-			{
+			if (dbType == DBType.MySQL) {
 				insertSqlOtherStrBytesLenth = "INSERT INTO `` () VALUES ".getBytes(characterSetDatabase).length;
 				tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
 				fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
 				extraBytesLenth = "(),".getBytes(characterSetDatabase).length;
-			}
-			else if (dbType == DBType.Oracle)
-			{
-				insertSqlOtherStrBytesLenth = "INSERT ALL SELECT 1 FROM DUAL;".getBytes(characterSetDatabase).length;
+			} else if (dbType == DBType.Oracle) {
+				insertSqlOtherStrBytesLenth = "INSERT ALL SELECT * FROM DUAL".getBytes(characterSetDatabase).length;
 				tableNameBytesLenth = tableName.getBytes(characterSetDatabase).length;
 				fieldsBytesLenth = fields.getBytes(characterSetDatabase).length;
 				extraBytesLenth = " INTO () VALUES ()".getBytes(characterSetDatabase).length;
 			}
 		} catch (UnsupportedEncodingException e2) {
-			e2.printStackTrace();
+			System.out.println("不支持的字符集: " + e2.getMessage());
+			return;
 		}
 
 		// 添加数据条数少于需要的条数, 开始新的一轮添加.
@@ -418,8 +422,12 @@ public class DatasMaker {
 					++dataAppendCountThisTurnNow;
 					++dataCountNow;
 					System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "MAKING");
-				} else if (dbType == DBType.Oracle) {
+				// MAYBE TODO
+				} else if (dbType == DBType.Oracle && sqlDatasBytesLenth + insertSqlOtherStrBytesLenth + tableNameBytesLenth + fieldsBytesLenth + resultBytesLenth + extraBytesLenth <= maxAllowedPacket) {
 					sqlDatas.append(" INTO ").append(tableName).append("(").append(fields).append(")").append(" VALUES (").append(result).append(")");
+					sqlDatasBytesLenth += (resultBytesLenth + extraBytesLenth);
+					++dataAppendCountThisTurnNow;
+					++dataCountNow;
 				} else {
 					resultTemp = result;
 					break;
@@ -435,13 +443,10 @@ public class DatasMaker {
 			try {
 				// 执行添加数据的sql语句, 一轮添加完成.
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "UPDATING");
-				if (dbType == DBType.MySQL)
-				{
+				if (dbType == DBType.MySQL) {
 					stmt.executeUpdate("INSERT INTO `" + tableName +"` (" + fields + ") VALUES " + sqlDatas.toString());
-				}
-				else if (dbType == DBType.Oracle)
-				{
-					stmt.executeUpdate("INSERT ALL" + sqlDatas.toString() + " SELECT 1 FROM DUAL;");
+				} else if (dbType == DBType.Oracle) {
+					stmt.executeUpdate("INSERT ALL" + sqlDatas.toString() + " SELECT * FROM DUAL");
 				}
 				System.out.println(dataCountNow + "/" + allDataTotalCount + "\t\t\t" + String.format("%.6f", dataCountNow / (allDataTotalCount * 1.0)) + "\t\t\t" + dataAppendCountThisTurnNow + "\t\t\t" + "DONE");
 				conn.commit();
